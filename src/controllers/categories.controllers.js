@@ -24,7 +24,16 @@ const getCategory = async (req = Request, res = Response) => {
     res.status(200).json(cat);
   }
 };
+const createCategory = async (req = Request, res = Response) => {
+  const cat = await sequelize.Category.create({
+    raw: true,
+    name: req.body.name,
+  });
+  res.status(201).json(cat);
+};
+
 module.exports = {
   getAllCategories,
+  createCategory,
   getCategory,
 };
