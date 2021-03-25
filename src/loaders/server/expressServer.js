@@ -2,6 +2,8 @@ const express = require("express");
 const swaggerUi = require("swagger-ui-express");
 const morgan = require("morgan");
 const config = require("../../config");
+const postRoutes = require("../../routes/posts.routes");
+const catRoutes = require("../../routes/categories.routes");
 const logger = require("../logger");
 const swaggerDocument = require("../swagger/swagger.json");
 class ExpressServer {
