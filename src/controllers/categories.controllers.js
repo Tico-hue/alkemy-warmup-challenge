@@ -52,10 +52,28 @@ const updateCategory = async (req = Request, res = Response) => {
   }
 };
 
+const deleteCategory = async (req = Request, res = Response) => {
+  const categoryToDelete = await sequelize.Category.findByPk(req.params.id);
+  if (categoryToDelete === null) {
+    res.status(404).send("post Not Found");
+  } else {
+    sequelize.Category.destroy({
+      where: {
+        id: req.params.id,
+      },
+    }).then((result, error) => {
+      if (error) {
+        throw error;
+      }
+      res.status(200).json(result);
+    });
+  }
+};
 
 module.exports = {
   getAllCategories,
   createCategory,
   updateCategory,
   getCategory,
+  deleteCategory,
 };
