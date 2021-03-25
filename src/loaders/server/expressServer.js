@@ -6,6 +6,7 @@ const logger = require("../logger");
 const swaggerDocument = require("../swagger/swagger.json");
 class ExpressServer {
   constructor() {
+    this._db();
     this.app = express();
     this.port = config.port;
     this._middlewares();
@@ -15,6 +16,16 @@ class ExpressServer {
     this._errorHandler();
   }
 
+  _db() {
+    require("../db/db");
+  }
+  _notFound() {
+    this.app.use((req, res, next) => {
+      const err = new Error("Not Found");
+      err.code = 404;
+      next(err);
+    });
+  }
   _errorHandler() {
     this.app.use((err, req = Request, res, next) => {
       const code = err.code || 500;
