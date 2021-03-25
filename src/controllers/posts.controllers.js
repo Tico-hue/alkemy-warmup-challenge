@@ -41,3 +41,35 @@ const createPost = async (req = Request, res = Response) => {
   }
 };
 
+const updatePost = async (req = Request, res = Response) => {
+  const postToUpdate = await sequelize.Post.findByPk(req.params.id);
+  if (postToUpdate === null) {
+    res.status(404).send("post Not Found");
+  } else {
+    if (req.body.image.match(/([a-z\-_0-9\/\:\.]*\.(jpg|jpeg|png|gif))/i)) {
+      const result = await sequelize.Post.update(
+        {
+          title: req.body.title,
+          content: req.body.content,
+          image: req.body.image,
+          cat_id: req.body.category,
+        },
+        {
+          where: {
+            id: req.params.id,
+          },
+        }
+      );
+      res.status(200).json(result);
+    } else {
+      res.status(500).send("image field must be a image url format");
+    }
+  }
+};
+
+module.exports = {
+  getAllposts,
+  createPost,
+  updatePost,
+  getPost,
+};
