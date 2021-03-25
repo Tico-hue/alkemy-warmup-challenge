@@ -32,8 +32,30 @@ const createCategory = async (req = Request, res = Response) => {
   res.status(201).json(cat);
 };
 
+const updateCategory = async (req = Request, res = Response) => {
+  const categoryToUpdate = await sequelize.Post.findByPk(req.params.id);
+  if (categoryToUpdate === null) {
+    res.status(404).send("category not found");
+  } else {
+    const result = await sequelize.Category.update(
+      {
+        name: req.body.name,
+      },
+      {
+        where: {
+          id: req.params.id,
+        },
+      }
+    );
+
+    res.status(200).json(result);
+  }
+};
+
+
 module.exports = {
   getAllCategories,
   createCategory,
+  updateCategory,
   getCategory,
 };
