@@ -21,6 +21,7 @@ class ExpressServer {
   _db() {
     require("../db/db");
   }
+
   _notFound() {
     this.app.use((req, res, next) => {
       const err = new Error("Not Found");

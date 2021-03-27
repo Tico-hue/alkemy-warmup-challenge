@@ -1,58 +1,51 @@
 const express = require("express");
+const PostRepository = require("../repositories/postRepository");
+const repository = new PostRepository();
 const sequelize = require("../loaders/db/db");
-const Post = require("../models/Post");
+const logger = require("winston");
 
-const getAllposts = (req = Request, res = Response) => {
-  sequelize.Post.findAll({
-    order: [["createdAt", "DESC"]],
-    attributes: ["id", "title", "image", "createdAt", "cat_id"],
-  })
-    .then((result) => {
-      res.json(result);
-    })
-    .catch((err) => {
-      throw err;
-    });
+const getAllposts = async (req = Request, res = Response) => {
+  res.json(await repository.allPosts());
 };
 
 const getPost = async (req = Request, res = Response) => {
-  const post = await sequelize.Post.findByPk(req.params.id, {
-    attributes: ["id", "title", "content", "image", "createdAt", "cat_id"],
-  });
+  const post = await repository.getPost(req.params.id);
   if (post === null) {
     res.status(404).send("not Found");
   } else {
-    res.status(200).json(post);
+    res.json(post);
   }
 };
 
 const createPost = async (req = Request, res = Response) => {
-  if (req.body.image.match(/([a-z\-_0-9\/\:\.]*\.(jpg|jpeg|png|gif))/i)) {
-    const post = await sequelize.Post.create({
-      raw: true,
-      title: req.body.title,
-      content: req.body.content,
-      image: req.body.image,
-      cat_id: req.body.category,
-    });
-    res.status(201).json(post);
+  if (
+    !req.body.image ||
+    (req.body.image &&
+      req.body.image.match(/([a-z\-_0-9\/\:\.]*\.(jpg|jpeg|png|gif))/i))
+  ) {
+    const response = await repository.createPost(req.body);
+    res.status(201).json(response);
   } else {
-    res.status(500).send("image field must be a image url format");
+    res.status(500).send("image field must be an image url format");
   }
 };
 
 const updatePost = async (req = Request, res = Response) => {
+  const { title, content, image, category } = req.body;
   const postToUpdate = await sequelize.Post.findByPk(req.params.id);
   if (postToUpdate === null) {
     res.status(404).send("post Not Found");
   } else {
-    if (req.body.image.match(/([a-z\-_0-9\/\:\.]*\.(jpg|jpeg|png|gif))/i)) {
+    if (
+      !image ||
+      (image && image.match(/([a-z\-_0-9\/\:\.]*\.(jpg|jpeg|png|gif))/i))
+    ) {
       const result = await sequelize.Post.update(
         {
-          title: req.body.title,
-          content: req.body.content,
-          image: req.body.image,
-          cat_id: req.body.category,
+          title: title,
+          content: content,
+          image: image,
+          cat_id: category,
         },
         {
           where: {
